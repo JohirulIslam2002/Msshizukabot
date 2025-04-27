@@ -1,6 +1,6 @@
 from telethon import TelegramClient, events, Button
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 # ========== কনফিগারেশন ==========
@@ -83,15 +83,8 @@ async def member_update(event):
     elif event.user_left or event.user_kicked:
         leave_count += 1
 
-# ========== চ্যানেল Join Request Auto Approve ==========
-@client.on(events.ChatActionRequest())
-async def auto_approve(event):
-    await event.approve()
-
 # ========== রাত ১২টায় Owner কে রিপোর্ট পাঠানো ==========
 async def send_daily_report():
-    global join_count, leave_count
-
     await client.connect()
     while True:
         now = datetime.now(pytz.timezone('Asia/Dhaka'))
@@ -113,6 +106,7 @@ async def send_daily_report():
             await client.send_message(OWNER_ID, report_text)
 
             # কাউন্ট রিসেট
+            global join_count, leave_count
             join_count = 0
             leave_count = 0
 
@@ -125,5 +119,4 @@ async def main():
         client.run_until_disconnected()
     )
 
-if __name__ == '__main__':
-    client.loop.run_until_complete(main())
+client.loop.run_until_complete(main())
